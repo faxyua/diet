@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Протокол FMD · 5-дневный цикл</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,480;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --paper: #F2F3EB;
+  --paper-deep: #E9EBDF;
+  --ink: #232922;
+  --ink-soft: #565F52;
+  --forest: #2F4A3D;
+  --forest-deep: #1E3129;
+  --forest-light: #4C6B57;
+  --gold: #A9824C;
+  --alert: #A64B3A;
+  --alert-bg: #F3E4DE;
+  --line: #D6D8C9;
+  --radius: 2px;
+}
+
+*{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+
+body{
+  margin:0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight:400;
+  line-height:1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono{ font-family:'IBM Plex Mono', monospace; }
+
+a{ color: inherit; }
+
+/* ---------- HERO ---------- */
+.hero{
+  background: var(--forest-deep);
+  color: var(--paper);
+  padding: 4.5rem 1.5rem 3rem;
+  position: relative;
+  overflow:hidden;
+}
+.hero-inner{
+  max-width: 920px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #C9C2A6;
+  margin-bottom: 1rem;
+}
+h1{
+  font-family:'Fraunces', serif;
+  font-weight: 480;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+.hero p.lede{
+  max-width: 52ch;
+  color: #DCE0D0;
+  font-size: 1.05rem;
+  margin: 0 0 2.6rem;
+}
+
+/* ---- dial ---- */
+.dial-wrap{
+  display:flex;
+  gap: 2.2rem;
+  align-items:center;
+  flex-wrap: wrap;
+}
+.dial{ flex: 0 0 auto; }
+.dial svg{ display:block; }
+.dial-seg{
+  fill: none;
+  stroke: #3F5A4C;
+  stroke-width: 14;
+  cursor: pointer;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.dial-seg:hover, .dial-seg.active{
+  stroke: var(--gold);
+  stroke-width: 17;
+}
+.dial-label{
+  font-family:'IBM Plex Mono', monospace;
+  fill: var(--paper);
+  font-size: 13px;
+  pointer-events:none;
+}
+.dial-center-num{
+  font-family:'Fraunces', serif;
+  font-size: 30px;
+  fill: var(--paper);
+}
+.dial-center-sub{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  fill: #A9B3A0;
+}
+
+.hero-stats{
+  display:flex;
+  flex-direction:column;
+  gap: 0.9rem;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  color: #C9C2A6;
+}
+.hero-stats div span{ color: var(--paper); }
+
+/* ---------- NAV ---------- */
+.daynav{
+  position: sticky;
+  top:0;
+  z-index: 10;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  display:flex;
+  gap: 0;
+  overflow-x:auto;
+  padding: 0 1.5rem;
+}
+.daynav a{
+  text-decoration:none;
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing:0.03em;
+  color: var(--ink-soft);
+  padding: 0.9rem 1rem;
+  white-space:nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+}
+.daynav a:hover{ color: var(--forest); }
+.daynav a.active{ color: var(--forest); border-color: var(--gold); }
+
+/* ---------- MAIN ---------- */
+main{ max-width: 920px; margin: 0 auto; padding: 0 1.5rem; }
+
+.intro-note{
+  padding: 2.4rem 0 1rem;
+  color: var(--ink-soft);
+  max-width: 60ch;
+  font-size: 0.97rem;
+}
+.intro-note b{ color: var(--ink); }
+
+section.day{
+  padding: 3.2rem 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 3.2rem;
+}
+section.day:first-of-type{ border-top: none; }
+
+.day-head{
+  display:flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+.day-num{
+  font-family:'Fraunces', serif;
+  font-weight: 480;
+  font-size: 3.2rem;
+  color: var(--forest);
+  line-height: 1;
+}
+.day-titles h2{
+  font-family:'Fraunces', serif;
+  font-weight: 480;
+  font-size: 1.5rem;
+  margin: 0 0 0.15rem;
+}
+.day-titles .phase{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.day-badges{
+  display:flex;
+  gap: 0.6rem;
+  margin: 1.1rem 0 1.8rem;
+  flex-wrap: wrap;
+}
+.badge{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  color: var(--ink-soft);
+  background: #fff;
+}
+.badge b{ color: var(--forest); font-weight:600; }
+
+.goal-line{
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin: -0.8rem 0 1.6rem;
+  font-style: italic;
+}
+
+.meals{
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+.meal{
+  display:grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1.4rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.meal-name{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing:0.06em;
+  text-transform: uppercase;
+  color: var(--forest);
+  padding-top: 0.15rem;
+}
+.meal-desc{ font-size: 0.98rem; }
+.meal-desc .g{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px){
+  .meal{ grid-template-columns: 1fr; gap: 0.3rem; }
+}
+
+/* ---------- SAFETY ---------- */
+.safety{
+  background: var(--forest-deep);
+  color: var(--paper);
+  margin-top: 2rem;
+  padding: 3.5rem 1.5rem;
+}
+.safety-inner{ max-width: 920px; margin:0 auto; }
+.safety h2{
+  font-family:'Fraunces', serif;
+  font-weight:480;
+  font-size: 1.9rem;
+  margin: 0 0 0.4rem;
+}
+.safety .eyebrow{ color: #C9C2A6; }
+.safety-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.4rem;
+  margin-top: 2.2rem;
+}
+@media (max-width:700px){ .safety-grid{ grid-template-columns: 1fr; } }
+
+.safety-col h3{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing:0.09em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 0.9rem;
+}
+.safety-col ul{ margin:0; padding: 0; list-style:none; }
+.safety-col li{
+  padding: 0.55rem 0;
+  border-top: 1px solid #3B5346;
+  font-size: 0.93rem;
+  color: #DCE0D0;
+}
+.safety-col li:first-child{ border-top: none; }
+
+.stop-box{
+  margin-top: 2.4rem;
+  background: var(--alert-bg);
+  color: #3A241E;
+  border-left: 3px solid var(--alert);
+  padding: 1.1rem 1.3rem;
+  border-radius: var(--radius);
+  font-size: 0.93rem;
+}
+.stop-box b{ color: var(--alert); }
+
+/* ---------- FOOTER ---------- */
+footer{
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-family:'IBM Plex Mono', monospace;
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *{ transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Персональный протокол · модифицированный ProLon</div>
+    <h1>5-дневный цикл<br>Fasting-Mimicking Diet</h1>
+    <p class="lede">Смягчённая версия классического протокола: калорийность и белок повышены относительно оригинала с учётом кардиопрофиля и цели по сохранению мышечной массы.</p>
+
+    <div class="dial-wrap">
+      <div class="dial" id="dial">
+        <svg width="220" height="220" viewBox="0 0 220 220">
+          <g id="dialSegs"></g>
+          <text x="110" y="104" text-anchor="middle" class="dial-center-num">5</text>
+          <text x="110" y="124" text-anchor="middle" class="dial-center-sub">ДНЕЙ ЦИКЛА</text>
+        </svg>
+      </div>
+      <div class="hero-stats">
+        <div>Калорийность &nbsp;<span>1100–1400 ккал/сут</span></div>
+        <div>Белок &nbsp;<span>40–60 г/сут</span></div>
+        <div>Повтор цикла &nbsp;<span>не чаще раза в 3 мес.</span></div>
+        <div>Перед стартом &nbsp;<span>согласование с кардиологом</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="daynav" id="daynav">
+  <a href="#day1">День 1</a>
+  <a href="#day2">День 2</a>
+  <a href="#day3">День 3</a>
+  <a href="#day4">День 4</a>
+  <a href="#day5">День 5</a>
+  <a href="#safety">Безопасность</a>
+</nav>
+
+<main>
+  <p class="intro-note">Белок распределён по всем приёмам пищи (рыба, курица, бобовые, орехи), а не почти исключён, как в оригинальном протоколе — это компромисс ради сохранения мышечной массы при весе 59 кг. <b>Соль и электролиты не убирать полностью</b> — учитывая низко-нормальное АД и брадикардию, резкий дефицит натрия повышает риск ортостатической гипотензии.</p>
+
+  <section class="day" id="day1">
+    <div class="day-head">
+      <div class="day-num mono">01</div>
+      <div class="day-titles">
+        <div class="phase">Переходный</div>
+        <h2>Подготовка без стресса для АД</h2>
+      </div>
+    </div>
+    <div class="day-badges">
+      <span class="badge">Калории&nbsp;<b>1300–1400 ккал</b></span>
+      <span class="badge">Белок&nbsp;<b>50–60 г</b></span>
+    </div>
+    <div class="meals">
+      <div class="meal">
+        <div class="meal-name">Завтрак</div>
+        <div class="meal-desc">Овсяные хлопья <span class="g">(50 г)</span> на воде с черникой <span class="g">(100 г)</span>, грецким орехом <span class="g">(20 г)</span> и оливковым маслом <span class="g">(1 ч.л.)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Обед</div>
+        <div class="meal-desc">Филе трески <span class="g">(80 г)</span> на пару или запечённое с брокколи <span class="g">(250 г)</span> и цветной капустой <span class="g">(150 г)</span>. Оливковое масло <span class="g">(15 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Перекус</div>
+        <div class="meal-desc">Крупное яблоко <span class="g">(~180 г)</span> и миндаль <span class="g">(20 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Ужин</div>
+        <div class="meal-desc">Киноа <span class="g">(55 г сух.)</span> с тушёными шампиньонами <span class="g">(150 г)</span>, шпинатом <span class="g">(100 г)</span> и авокадо <span class="g">(½ шт., 100 г)</span>. Оливковое масло <span class="g">(1 ст.л.)</span>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="day" id="day2">
+    <div class="day-head">
+      <div class="day-num mono">02</div>
+      <div class="day-titles">
+        <div class="phase">Основная фаза</div>
+        <h2>Снижение калорийности</h2>
+      </div>
+    </div>
+    <div class="day-badges">
+      <span class="badge">Калории&nbsp;<b>1100 ккал</b></span>
+      <span class="badge">Белок&nbsp;<b>~42 г</b></span>
+    </div>
+    <div class="meals">
+      <div class="meal">
+        <div class="meal-name">Завтрак</div>
+        <div class="meal-desc">Гречневая каша <span class="g">(45 г сух.)</span> с грецкими орехами <span class="g">(20 г)</span> и ягодами <span class="g">(150 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Обед</div>
+        <div class="meal-desc">Хек <span class="g">(80 г)</span> с овощным рагу — кабачок <span class="g">(250 г)</span>, сладкий перец <span class="g">(150 г)</span>, томаты <span class="g">(150 г)</span>. Оливковое масло <span class="g">(20 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Перекус</div>
+        <div class="meal-desc">2 киви или сельдерей с хумусом <span class="g">(20 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Ужин</div>
+        <div class="meal-desc">Чечевица <span class="g">(35 г сух.)</span> с брокколи <span class="g">(200 г)</span> и авокадо <span class="g">(70 г)</span>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="day" id="day3">
+    <div class="day-head">
+      <div class="day-num mono">03</div>
+      <div class="day-titles">
+        <div class="phase">Пик клеточного очищения</div>
+        <h2>Минимальная калорийность цикла</h2>
+      </div>
+    </div>
+    <div class="day-badges">
+      <span class="badge">Калории&nbsp;<b>1100 ккал</b></span>
+      <span class="badge">Белок&nbsp;<b>~42 г</b></span>
+    </div>
+    <div class="meals">
+      <div class="meal">
+        <div class="meal-name">Завтрак</div>
+        <div class="meal-desc">Овсянка <span class="g">(45 г)</span> с семенами чиа <span class="g">(15 г)</span> и сезонными ягодами <span class="g">(100 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Обед</div>
+        <div class="meal-desc">Куриная грудка <span class="g">(70 г)</span> с салатом — шпинат, руккола, огурец, помидор. Оливковое масло <span class="g">(20 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Перекус</div>
+        <div class="meal-desc">Одна груша.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Ужин</div>
+        <div class="meal-desc">Суп-крем: тыква <span class="g">(300 г)</span>, цветная капуста, сельдерей. Тыквенные семечки <span class="g">(15 г)</span> сверху.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="day" id="day4">
+    <div class="day-head">
+      <div class="day-num mono">04</div>
+      <div class="day-titles">
+        <div class="phase">Стабилизация</div>
+        <h2>Удержание фазы</h2>
+      </div>
+    </div>
+    <div class="day-badges">
+      <span class="badge">Калории&nbsp;<b>1100 ккал</b></span>
+      <span class="badge">Белок&nbsp;<b>~40 г</b></span>
+    </div>
+    <div class="meals">
+      <div class="meal">
+        <div class="meal-name">Завтрак</div>
+        <div class="meal-desc">Киноа <span class="g">(45 г)</span> с грецкими орехами <span class="g">(15 г)</span> и черникой <span class="g">(100 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Обед</div>
+        <div class="meal-desc">Минтай <span class="g">(80 г)</span> с брокколи <span class="g">(200 г)</span> и брюссельской капустой <span class="g">(150 г)</span>. Масло <span class="g">(15 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Перекус</div>
+        <div class="meal-desc">Одно яблоко.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Ужин</div>
+        <div class="meal-desc">Тушёные грибы с кабачком и шпинатом, подавать с авокадо.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="day" id="day5">
+    <div class="day-head">
+      <div class="day-num mono">05</div>
+      <div class="day-titles">
+        <div class="phase">Завершение и регенерация</div>
+        <h2>Выход из цикла</h2>
+      </div>
+    </div>
+    <div class="day-badges">
+      <span class="badge">Калории&nbsp;<b>1150 ккал</b></span>
+      <span class="badge">Белок&nbsp;<b>~45 г</b></span>
+    </div>
+    <div class="meals">
+      <div class="meal">
+        <div class="meal-name">Завтрак</div>
+        <div class="meal-desc">Овсянка <span class="g">(50 г)</span> с молотым льняным семенем <span class="g">(10 г)</span> и малиной <span class="g">(100 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Обед</div>
+        <div class="meal-desc">Лосось <span class="g">(70 г)</span> со спаржей <span class="g">(200 г)</span> и брокколи <span class="g">(150 г)</span>. Масла меньше обычного — рыба жирная.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Перекус</div>
+        <div class="meal-desc">Грецкие орехи <span class="g">(15 г)</span>.</div>
+      </div>
+      <div class="meal">
+        <div class="meal-name">Ужин</div>
+        <div class="meal-desc">Чечевица <span class="g">(30 г)</span> с овощным рагу из грибов и шпината.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="safety" id="safety">
+  <div class="safety-inner">
+    <div class="eyebrow mono">Кардиопрофиль · дилатация аорты 4,3–4,4 см</div>
+    <h2>Мониторинг и стоп-сигналы</h2>
+    <div class="safety-grid">
+      <div class="safety-col">
+        <h3>Отслеживать ежедневно</h3>
+        <ul>
+          <li>АД и пульс утром и вечером</li>
+          <li>Головокружение при вставании</li>
+          <li>Сердцебиение или перебои ритма</li>
+          <li>Необычная одышка</li>
+          <li>Вес — падение больше 1 кг/день сигнализирует о потере жидкости</li>
+        </ul>
+      </div>
+      <div class="safety-col">
+        <h3>Частота и подготовка</h3>
+        <ul>
+          <li>Не чаще одного цикла в 3 месяца</li>
+          <li>Первый цикл — только после согласования с кардиологом</li>
+          <li>Желательно вскоре после планового ЭхоКГ (контроль раз в 6 мес.)</li>
+          <li>Соль и электролиты не исключать полностью</li>
+        </ul>
+      </div>
+    </div>
+    <div class="stop-box">
+      <b>Прервать цикл немедленно</b>, если: систолическое АД падает ниже ~90 мм рт. ст.; появляется предобморочное состояние; учащение или новые перебои ритма на фоне обычной брадикардии 47–52; любая боль или давление в груди.
+    </div>
+  </div>
+</section>
+
+<footer>
+  Личный протокол · не заменяет консультацию врача · последнее обновление вручную
+</footer>
+
+<script>
+(function(){
+  var svgNS = "http://www.w3.org/2000/svg";
+  var g = document.getElementById('dialSegs');
+  var cx = 110, cy = 110, r = 88;
+  var days = [
+    {n:1, kcal:'1350'},
+    {n:2, kcal:'1100'},
+    {n:3, kcal:'1100'},
+    {n:4, kcal:'1100'},
+    {n:5, kcal:'1150'}
+  ];
+  var gap = 0.06; // radians gap between segments
+  var total = Math.PI * 2;
+  var segAngle = total / days.length;
+
+  days.forEach(function(d, i){
+    var start = -Math.PI/2 + i * segAngle + gap/2;
+    var end = -Math.PI/2 + (i+1) * segAngle - gap/2;
+
+    var x1 = cx + r * Math.cos(start);
+    var y1 = cy + r * Math.sin(start);
+    var x2 = cx + r * Math.cos(end);
+    var y2 = cy + r * Math.sin(end);
+    var largeArc = (end - start) > Math.PI ? 1 : 0;
+
+    var path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', 'M '+x1+' '+y1+' A '+r+' '+r+' 0 '+largeArc+' 1 '+x2+' '+y2);
+    path.setAttribute('class', 'dial-seg');
+    path.setAttribute('id', 'seg'+d.n);
+    path.addEventListener('click', function(){
+      document.getElementById('day'+d.n).scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    g.appendChild(path);
+
+    var mid = (start+end)/2;
+    var lx = cx + (r+18) * Math.cos(mid);
+    var ly = cy + (r+18) * Math.sin(mid);
+    var label = document.createElementNS(svgNS, 'text');
+    label.setAttribute('x', lx);
+    label.setAttribute('y', ly);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('class','dial-label');
+    label.textContent = d.n;
+    g.appendChild(label);
+  });
+
+  // scrollspy for nav + dial
+  var sections = document.querySelectorAll('main .day, #safety');
+  var navLinks = document.querySelectorAll('#daynav a');
+
+  function setActive(id){
+    navLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#'+id);
+    });
+    for(var i=1;i<=5;i++){
+      var seg = document.getElementById('seg'+i);
+      if(seg) seg.classList.toggle('active', id === 'day'+i);
+    }
+  }
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){ setActive(entry.target.id); }
+    });
+  }, {rootMargin: '-40% 0px -55% 0px'});
+
+  sections.forEach(function(s){ observer.observe(s); });
+})();
+</script>
+
+</body>
+</html>
